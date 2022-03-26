@@ -26,8 +26,14 @@ import java.util.Map;
 @EnableKafka
 public class KafkaConfig {
 
-    @Value("${app.kafka.bootstrap-servers}")
+    @Value("${app.kafka.brokers}")
     private String bootstrapAddress;
+
+    @Value("${KAFKA_USERNAME}")
+    private String kafkaUsername;
+
+    @Value("${KAFKA_PASSWORD}")
+    private String kafkaPassword;
 
     @Value("${app.kafka.group-id}")
     private String groupId;
@@ -43,7 +49,10 @@ public class KafkaConfig {
         configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
         configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, LongSerializer.class);
         configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
-        configProps.put(ProducerConfig.MAX_REQUEST_SIZE_CONFIG, 1048576000);
+        configProps.put("security.protocol", "SASL_SSL");
+        configProps.put("sasl.mechanism", "SCRAM-SHA-256");
+        configProps.put("sasl.jaas.config", "org.apache.kafka.common.security.scram.ScramLoginModule required username='" + kafkaUsername + "' password='" + kafkaPassword + "';");
+
         return new DefaultKafkaProducerFactory<>(configProps);
     }
 
@@ -69,6 +78,9 @@ public class KafkaConfig {
         props.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, 60000);
         props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
+        props.put("security.protocol", "SASL_SSL");
+        props.put("sasl.mechanism", "SCRAM-SHA-256");
+        props.put("sasl.jaas.config", "org.apache.kafka.common.security.scram.ScramLoginModule required username='" + kafkaUsername + "' password='" + kafkaPassword + "';");
         return new DefaultKafkaConsumerFactory<>(props, new LongDeserializer(), jsonDeserializer);
     }
 }

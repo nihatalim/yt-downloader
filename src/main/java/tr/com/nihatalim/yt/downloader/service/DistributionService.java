@@ -2,6 +2,7 @@ package tr.com.nihatalim.yt.downloader.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,9 @@ public class DistributionService {
     private final KafkaTemplate<Long, DownloadProgressDto> kafkaTemplate;
     private final ObjectMapper objectMapper;
 
+    @Value("${app.kafka.topic.prefix}")
+    private String topicPrefix;
+
     public DistributionService(KafkaTemplate<Long, DownloadProgressDto> kafkaTemplate, ObjectMapper objectMapper) {
         this.kafkaTemplate = kafkaTemplate;
         this.objectMapper = objectMapper;
@@ -23,7 +27,7 @@ public class DistributionService {
 
     public void send(TopicEnum topicEnum, DownloadProgressDto item) {
         try {
-            kafkaTemplate.send(topicEnum.getTopicName(), item).addCallback(new ListenableFutureCallback<>() {
+            kafkaTemplate.send(topicPrefix + topicEnum.getTopicName(), item).addCallback(new ListenableFutureCallback<>() {
                 @Override
                 public void onFailure(Throwable ex) {
                     throw new KafkaProduceFailedException(String.format("[DistributionService] Cannot produced to topic: %s", topicEnum.getTopicName()));

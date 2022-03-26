@@ -4,7 +4,7 @@ WORKDIR /app
 
 COPY ./target/downloader.jar ./downloader.jar
 
-RUN apt update
+RUN apt-get update
 
 RUN apt install python3 ffmpeg -y
 

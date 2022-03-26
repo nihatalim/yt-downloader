@@ -44,7 +44,7 @@ public class DownloadListener {
         this.storageService = storageService;
     }
 
-    @KafkaListener(topics = {"DOWNLOAD_EVENT"})
+    @KafkaListener(topics = "${app.kafka.topics.download-event}")
     @Transactional
     public void downloadCompleted(ConsumerRecord<Long, DownloadProgressDto> record) {
         final DownloadProgressDto downloadProgressDto = record.value();
