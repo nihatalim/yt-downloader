@@ -12,4 +12,6 @@ RUN curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o 
 
 RUN chmod a+rx /usr/bin/youtube-dl
 
+VOLUME /app/logs
+
 ENTRYPOINT [ "java", "-jar", "/app/downloader.jar"]
